@@ -67,4 +67,65 @@ public function store(Request $request)
 
 }
 
+/**
+* edit
+*
+* @param  mixed $post
+* @return void
+*/
+public function edit(Post $post)
+{
+  return view('post.edit', compact('post'));
+}
+    
+/**
+* update
+*
+* @param  mixed $request
+* @param  mixed $post
+* @return void
+*/
+public function update(Request $request, Post $post)
+{
+  $this->validate($request, [
+      'title'     => 'required',
+      'content'   => 'required'
+  ]);
+    
+  //get data post by ID
+  $post = Post::findOrFail($post->id);
+    
+  if($request->file('image') == "") {
+    
+     $post->update([
+         'title'     => $request->title,
+         'content'   => $request->content
+     ]);
+    
+  } else {
+    
+      //hapus old image
+      Storage::disk('local')->delete('public/posts/'.$post->image);
+    
+      //upload new image
+      $image = $request->file('image');
+      $image->storeAs('public/posts', $image->hashName());
+    
+      $post->update([
+         'image'     => $image->hashName(),
+         'title'     => $request->title,
+         'content'   => $request->content
+      ]);
+    
+  }
+    
+  if($post){
+     //redirect dengan pesan sukses
+     return redirect()->route('post.index')->with(['success' => 'Data Berhasil Diupdate!']);
+  }else{
+     //redirect dengan pesan error
+     return redirect()->route('post.index')->with(['error' => 'Data Gagal Diupdate!']);
+  }
+}
+
 }
