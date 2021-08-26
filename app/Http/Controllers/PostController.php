@@ -128,4 +128,26 @@ public function update(Request $request, Post $post)
   }
 }
 
+
+/**
+* destroy
+*
+* @param  mixed $id
+* @return void
+*/
+public function destroy($id)
+{
+  $post = Post::findOrFail($id);
+  Storage::disk('local')->delete('public/posts/'.$post->image);
+  $post->delete();
+
+  if($post){
+    //redirect dengan pesan sukses
+    return redirect()->route('post.index')->with(['success' => 'Data Berhasil Dihapus!']);
+  }else{
+    //redirect dengan pesan error
+    return redirect()->route('post.index')->with(['error' => 'Data Gagal Dihapus!']);
+  }
+}
+
 }
